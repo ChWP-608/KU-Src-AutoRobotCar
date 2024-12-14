@@ -1,0 +1,115 @@
+// Speed
+int Speed = 150;
+
+// Motor Pins
+int motor1pin1 = 2; // right-motor backward
+int motor1pin2 = 3; // right-motor forward
+int motor2pin1 = 4; // left-motor backward
+int motor2pin2 = 7; // left-motor forward 
+
+// Speed controller Pins
+int SpeedA = 5; // Speed of Right Motor
+int SpeedB = 6; // Speed of Left Motor
+
+// Sensor Pins
+int sensor1 = A4;
+int sensor2 = A3;
+int sensor3 = A2;
+int sensor4 = A1;
+int sensor5 = A0;
+
+void setup() {
+    Serial.begin(9600);
+
+    // Motor pins as output
+    pinMode(motor1pin1, OUTPUT);
+    pinMode(motor1pin2, OUTPUT);
+    pinMode(motor2pin1, OUTPUT);
+    pinMode(motor2pin2, OUTPUT);
+
+    // Speed controller pins as output
+    pinMode(SpeedA, OUTPUT);
+    pinMode(SpeedB, OUTPUT);
+
+    pinMode(sensor1, INPUT);
+    pinMode(sensor2, INPUT);
+    pinMode(sensor3, INPUT);
+    pinMode(sensor4, INPUT);
+    pinMode(sensor5, INPUT);
+
+    // Initialize motor speed
+    analogWrite(SpeedA, Speed);
+    analogWrite(SpeedB, Speed);
+}
+
+void loop() {
+  digitalRead(sensor1);
+  digitalRead(sensor2);
+  digitalRead(sensor3);
+  digitalRead(sensor4);
+  digitalRead(sensor5);
+
+    // Display sensor values
+    Serial.print("LL_sensor: "); Serial.print(sensor1);
+    Serial.print(" L_sensor: "); Serial.print(sensor2);
+    Serial.print(" M_sensor: "); Serial.print(sensor3);
+    Serial.print(" R_sensor: "); Serial.print(sensor4);
+    Serial.print(" RR_sensor: "); Serial.println(sensor5);
+
+    // Decision-making logic
+    if (sensor1 == 1 || sensor2 == 1 || sensor4 == 1 || sensor5 == 1) {
+      Forward();
+    }
+    else if(sensor1 == 0 && sensor2 == 0 && sensor4 == 0 && sensor5 == 0){
+      Stop();
+    }
+     else if (sensor1 == 0 || sensor2 == 0){
+      if(sensor4 == 1 && sensor5 == 1){
+      SharpLeft();
+      }
+    } else if (sensor4 == 0 || sensor5 == 0 ){
+      if(sensor1 == 1 && sensor2 == 1){
+      SharpRight();
+      }
+    } else {
+      Stop();
+      }
+    
+}
+
+// Motor movement functions
+void Forward() {
+    digitalWrite(motor1pin2, HIGH);
+    digitalWrite(motor2pin2, HIGH);
+}
+
+void LeftTurn() {
+    digitalWrite(motor1pin2, HIGH); // Move right motor forward
+    digitalWrite(motor2pin2, LOW);  // Stop left motor
+}
+
+void RightTurn() {
+    digitalWrite(motor1pin2, LOW);  // Stop right motor
+    digitalWrite(motor2pin2, HIGH); // Move left motor forward
+}
+
+void SharpLeft() {
+    digitalWrite(motor1pin1, LOW);
+    digitalWrite(motor1pin2, HIGH); // Move right motor forward
+    digitalWrite(motor2pin1, HIGH); // Move left motor backward
+    digitalWrite(motor2pin2, LOW);
+}
+
+void SharpRight() {
+    digitalWrite(motor1pin1, HIGH); // Move left motor forward
+    digitalWrite(motor1pin2, LOW);
+    digitalWrite(motor2pin1, LOW);
+    digitalWrite(motor2pin2, HIGH); // Move right motor backward
+}
+
+void Stop() {
+    digitalWrite(motor1pin1, LOW);
+    digitalWrite(motor1pin2, LOW);
+    digitalWrite(motor2pin1, LOW);
+    digitalWrite(motor2pin2, LOW);
+}
